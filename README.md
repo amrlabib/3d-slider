@@ -1,4 +1,4 @@
-# 3D-slider
+# 3D-Slider
 
 
 3D Slider Done with 2D CSS transformations.
