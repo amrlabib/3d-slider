@@ -1,0 +1,26 @@
+{
+  "name": "3d-slider",
+  "version": "1.0.0",
+  "description": "3d carousel slider",
+  "main": "3d-slider.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "3d",
+    "slider",
+    "carousel"
+  ],
+  "author": "Amr Labib",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.18.1",
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-concat": "^2.6.1",
+    "gulp-imagemin": "^3.1.1",
+    "gulp-minify": "0.0.14",
+    "gulp-sass": "^2.3.2",
+    "hammerjs": "^2.0.8"
+  }
+}
