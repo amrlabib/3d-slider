@@ -1,8 +1,16 @@
 var Slider = (function() {
 
-    var initSlider = function() {
+    var initSlider = function(options) {
         var dir = $("html").attr("dir");
-        var swipeHandler = new Hammer(document.getElementById("slider"));
+        var swipeHandler = new Hammer($(options.sliderElement)[0]);
+
+        var setDefaultOptions = function() {
+            var slides = $(options.sliderElement + " " + options.slideElement);
+            var numberOfSlides = slides.length;
+            if (options.activeSlide > numberOfSlides - 1 || options.activeSlide < 0)
+                options.activeSlide = Math.ceil((numberOfSlides - 1) / 2);
+        }
+
         swipeHandler.on('swipeleft', function(e) {
             if (dir == "rtl")
                 $(".arrow-left").trigger("mouseup");
@@ -32,7 +40,7 @@ var Slider = (function() {
             }
         });
 
-        $(".dots span").click(function(event) {
+        $("body").on('click', '.dots span', function(event) {
             var slideIndex = $(this).index();
             var nextActiveSlide = $($(".slider").children()[slideIndex]);
             $(".dots span").removeClass("active");
@@ -59,17 +67,62 @@ var Slider = (function() {
             nextActiveSlide.next().next().addClass("next-2");
         }
 
-        var updateToNextSlide = function(nextActiveSlide) {
 
+        var initInitialSlide = function() {
+            var slides = $(options.sliderElement + " " + options.slideElement);
+            var numberOfSlides = slides.length;
+            for (var i = 0; i < numberOfSlides; i++) {
+                var currentClass = "";
+                var currentSlide = slides[i];
+
+                if (i == options.activeSlide)
+                    currentClass = "active";
+                else if ((options.activeSlide - 1) >= 0 && i == (options.activeSlide - 1))
+                    currentClass = "prev-1";
+                else if ((options.activeSlide - 2) >= 0 && i == (options.activeSlide - 2))
+                    currentClass = "prev-2";
+                else if ((options.activeSlide + 1) <= numberOfSlides - 1 && i == (options.activeSlide + 1))
+                    currentClass = "next-1";
+                else if ((options.activeSlide + 2) <= numberOfSlides - 1 && i == (options.activeSlide + 2))
+                    currentClass = "next-2";
+
+                $(currentSlide).addClass(currentClass);
+            }
         }
+
+        var addDots = function() {
+            var numberOfSlides = $(options.sliderElement + " " + options.slideElement).length;
+            for (var i = 0; i < numberOfSlides; i++) {
+                var activeClass = "";
+                if (i == options.activeSlide)
+                    activeClass = "active";
+
+                if (!options.dotCustomElement) {
+                    var dotElement = $("<span></span>").addClass(activeClass);
+                    $('.dots').append(dotElement);
+                } else {
+                    var dotElement = $(options.dotCustomElement).addClass(activeClass);
+                    $('.dots').append(dotElement);
+                }
+            }
+        }
+
+        setDefaultOptions();
+        addDots();
+        initInitialSlide();
     }
     return {
-        init: function() {
-            initSlider();
+        init: function(options) {
+            initSlider(options);
         }
     }
 })();
 
 $(function() {
-    Slider.init();
+    var options = {
+        sliderElement: "#slider",
+        slideElement: ".slide",
+        activeSlide: 5
+    }
+    Slider.init(options);
 });
