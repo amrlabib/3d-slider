@@ -7,6 +7,7 @@ var Slider = (function() {
         dots: true,
         dotCustomElement: "<span class='dot'></span>",
         arrowCustomElement: "<span class='arrow'></span>",
+        focusOnClick: true,
         onSlideChange: function(prevSlide, nextSlide) {}
     }
 
@@ -23,6 +24,8 @@ var Slider = (function() {
             options.arrows = (options.arrows == undefined) ? true : options.arrows;
             //set dots value to default true if not already set to a specific value
             options.dots = (options.dots == undefined) ? true : options.dots;
+            //set focus on click default value
+            options.focusOnClick = (options.focusOnClick == undefined) ? true : options.focusOnClick;
             //set dots default html if not set 
             options.dotCustomElement = (options.dotCustomElement == undefined) ? defaultOptions.dotCustomElement : options.dotCustomElement;
             //set arrows default html if not set 
@@ -52,7 +55,7 @@ var Slider = (function() {
 
             if (nextActiveSlide.length > 0) {
                 var nextActiveIndex = nextActiveSlide.index();
-                $(".dots span").removeClass("active");
+                $(".dots .dot").removeClass("active");
                 $($(".dots").children()[nextActiveIndex]).addClass("active");
 
                 updateSlides(currentActiveSlide, nextActiveSlide);
@@ -62,11 +65,20 @@ var Slider = (function() {
         $("body").on('click', '.dots .dot', function(event) {
             var slideIndex = $(this).index();
             var nextActiveSlide = $($(options.sliderElement).children()[slideIndex]);
-            $(".dots span").removeClass("active");
+            $(".dots .dot").removeClass("active");
             $(this).addClass("active");
 
             var currentActiveSlide = $(".slide.active");
             updateSlides(currentActiveSlide, nextActiveSlide);
+        });
+
+        $("body").on('click', options.slideElement, function(event) {
+            if (options.focusOnClick) {
+                event.preventDefault();
+                var nextActiveSlide = $(event.target);
+                var currentActiveSlide = $(".slide.active");
+                updateSlides(currentActiveSlide, nextActiveSlide);
+            }
         });
 
         var updateSlides = function(currentActiveSlide, nextActiveSlide) {
@@ -82,7 +94,7 @@ var Slider = (function() {
             nextActiveSlide.addClass("active");
             nextActiveSlide.next().addClass("next-1");
             nextActiveSlide.next().next().addClass("next-2");
-
+            
             options.onSlideChange(currentActiveSlideIndex, nextActiveSlideIndex);
         }
 
@@ -135,7 +147,6 @@ var Slider = (function() {
             }
         }
 
-
         setDefaultOptions();
         addDots();
         addArrows();
@@ -157,6 +168,7 @@ $(function() {
         dots: true,
         dotCustomElement: "<span class='dot'></span>",
         arrowCustomElement: "<span class='arrow'></span>",
+        focusOnClick: true,
         onSlideChange: function(prevSlide, nextSlide) {}
     }
     Slider.init(options);
