@@ -1,5 +1,5 @@
 var Slider = (function() {
-    var defaultOptions = {
+    defaultOptions = {
         sliderElement: "#slider",
         slideElement: ".slide",
         activeSlide: -1,
@@ -10,10 +10,11 @@ var Slider = (function() {
         focusOnClick: true,
         onSlideChange: function(prevSlide, nextSlide) {}
     }
-
     var initSlider = function(options) {
         var dir = $("html").attr("dir");
-        var swipeHandler = new Hammer($(options.sliderElement)[0]);
+        var $slider = $(options.sliderElement);
+        var swipeHandler = new Hammer($slider[0]);
+
 
         var setDefaultOptions = function() {
             var slides = $(options.sliderElement + " " + options.slideElement);
@@ -34,20 +35,20 @@ var Slider = (function() {
 
         swipeHandler.on('swipeleft', function(e) {
             if (dir == "rtl")
-                $(".arrow-left").trigger("mouseup");
+                $slider.parent().find(".arrow-left").trigger("mouseup");
             else
-                $(".arrow-right").trigger("mouseup");
+                $slider.parent().find(".arrow-right").trigger("mouseup");
         });
 
         swipeHandler.on('swiperight', function(e) {
             if (dir == "rtl")
-                $(".arrow-right").trigger("mouseup");
+                $slider.parent().find(".arrow-right").trigger("mouseup");
             else
-                $(".arrow-left").trigger("mouseup");
+                $slider.parent().find(".arrow-left").trigger("mouseup");
         });
 
-        $("body").on('mouseup', '.arrow', function(event) {
-            var currentActiveSlide = $(".slide.active");
+        $slider.parent().on('mouseup', ".arrow", function(event) {
+            var currentActiveSlide = $slider.find(options.slideElement + ".active");
             var nextActiveSlide = currentActiveSlide.next();
 
             if ($(this).hasClass("arrow-left"))
@@ -55,28 +56,28 @@ var Slider = (function() {
 
             if (nextActiveSlide.length > 0) {
                 var nextActiveIndex = nextActiveSlide.index();
-                $(".dots .dot").removeClass("active");
-                $($(".dots").children()[nextActiveIndex]).addClass("active");
+                $slider.parent().find(".dots .dot").removeClass("active");
+                $($slider.parent().find(".dots").children()[nextActiveIndex]).addClass("active");
 
                 updateSlides(currentActiveSlide, nextActiveSlide);
             }
         });
 
-        $("body").on('click', '.dots .dot', function(event) {
+        $slider.parent().on('click', '.dots .dot', function(event) {
             var slideIndex = $(this).index();
-            var nextActiveSlide = $($(options.sliderElement).children()[slideIndex]);
-            $(".dots .dot").removeClass("active");
-            $(this).addClass("active");
+            var nextActiveSlide = $($slider.children()[slideIndex]);
+            $slider.parent().find(".dots .dot").removeClass("active");
+            $(event.target).addClass("active");
 
-            var currentActiveSlide = $(".slide.active");
+            var currentActiveSlide = $slider.find(options.slideElement + ".active");
             updateSlides(currentActiveSlide, nextActiveSlide);
         });
 
-        $("body").on('click', options.slideElement, function(event) {
+        $slider.on('click', options.slideElement, function(event) {
             if (options.focusOnClick) {
                 event.preventDefault();
                 var nextActiveSlide = $(event.target);
-                var currentActiveSlide = $(".slide.active");
+                var currentActiveSlide = $(options.slideElement + ".active");
                 updateSlides(currentActiveSlide, nextActiveSlide);
             }
         });
@@ -85,7 +86,7 @@ var Slider = (function() {
             var currentActiveSlideIndex = $(currentActiveSlide).index();
             var nextActiveSlideIndex = $(nextActiveSlide).index();
 
-            $(options.slideElement).removeClass("prev-1 next-1 active prev-2 next-2");
+            $slider.find(options.slideElement).removeClass("prev-1 next-1 active prev-2 next-2");
 
             nextActiveSlide.addClass("active");
 
@@ -94,7 +95,7 @@ var Slider = (function() {
             nextActiveSlide.addClass("active");
             nextActiveSlide.next().addClass("next-1");
             nextActiveSlide.next().next().addClass("next-2");
-            
+
             options.onSlideChange(currentActiveSlideIndex, nextActiveSlideIndex);
         }
 
@@ -133,7 +134,7 @@ var Slider = (function() {
                     var dotElement = $(options.dotCustomElement).addClass(activeClass);
                     dotsContainer.append(dotElement);
                 }
-                $(options.sliderElement).parent().append(dotsContainer);
+                $slider.parent().append(dotsContainer);
             }
         }
 
@@ -143,7 +144,7 @@ var Slider = (function() {
                 var leftArrow = $(options.arrowCustomElement).addClass('arrow-left');
                 var rightArrow = $(options.arrowCustomElement).addClass('arrow-right');
                 arrowsCotainer.append(leftArrow).append(rightArrow);
-                $(options.sliderElement).parent().append(arrowsCotainer);
+                $slider.parent().append(arrowsCotainer);
             }
         }
 
@@ -159,6 +160,17 @@ var Slider = (function() {
     }
 })();
 
+
+
+
+
+
+
+
+
+
+
+
 $(function() {
     var options = {
         sliderElement: "#slider",
@@ -171,5 +183,18 @@ $(function() {
         focusOnClick: true,
         onSlideChange: function(prevSlide, nextSlide) {}
     }
-    Slider.init(options);
+    var firstSlider = Slider.init(options);
+
+    var options2 = {
+        sliderElement: "#slider-2",
+        slideElement: ".slide",
+        activeSlide: -1,
+        arrows: true,
+        dots: false,
+        dotCustomElement: "<span class='dot'></span>",
+        arrowCustomElement: "<span class='arrow'></span>",
+        focusOnClick: true,
+        onSlideChange: function(prevSlide, nextSlide) {}
+    }
+    var secondSlider = Slider.init(options2);
 });
