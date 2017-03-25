@@ -1,4 +1,14 @@
 var Slider = (function() {
+    var defaultOptions = {
+        sliderElement: "#slider",
+        slideElement: ".slide",
+        activeSlide: -1,
+        arrows: true,
+        dots: true,
+        dotCustomElement: "<span class='dot'></span>",
+        arrowCustomElement: "<span class='arrow'></span>",
+        onSlideChange: function(prevSlide, nextSlide) {}
+    }
 
     var initSlider = function(options) {
         var dir = $("html").attr("dir");
@@ -7,8 +17,16 @@ var Slider = (function() {
         var setDefaultOptions = function() {
             var slides = $(options.sliderElement + " " + options.slideElement);
             var numberOfSlides = slides.length;
-            if (options.activeSlide > numberOfSlides - 1 || options.activeSlide < 0)
-                options.activeSlide = Math.ceil((numberOfSlides - 1) / 2);
+            //set the first active slide and check if added value is invalid
+            options.activeSlide = (options.activeSlide > numberOfSlides - 1 || options.activeSlide < 0 || options.activeSlide == undefined) ? Math.ceil((numberOfSlides - 1) / 2) : options.activeSlide;
+            //set arrow value to default true if not already set to a specific value
+            options.arrows = (options.arrows == undefined) ? true : options.arrows;
+            //set dots value to default true if not already set to a specific value
+            options.dots = (options.dots == undefined) ? true : options.dots;
+            //set dots default html if not set 
+            options.dotCustomElement = (options.dotCustomElement == undefined) ? defaultOptions.dotCustomElement : options.dotCustomElement;
+            //set arrows default html if not set 
+            options.arrowCustomElement = (options.arrowCustomElement == undefined) ? defaultOptions.arrowCustomElement : options.arrowCustomElement;
         }
 
         swipeHandler.on('swipeleft', function(e) {
@@ -25,38 +43,37 @@ var Slider = (function() {
                 $(".arrow-left").trigger("mouseup");
         });
 
-        $(".arrow-right , .arrow-left").mouseup(function(event) {
-            var nextActiveSlide = $(".slide.active").next();
+        $("body").on('mouseup', '.arrow', function(event) {
+            var currentActiveSlide = $(".slide.active");
+            var nextActiveSlide = currentActiveSlide.next();
 
             if ($(this).hasClass("arrow-left"))
-                nextActiveSlide = $(".slide.active").prev();
+                nextActiveSlide = currentActiveSlide.prev();
 
             if (nextActiveSlide.length > 0) {
                 var nextActiveIndex = nextActiveSlide.index();
                 $(".dots span").removeClass("active");
                 $($(".dots").children()[nextActiveIndex]).addClass("active");
 
-                updateSlides(nextActiveSlide);
+                updateSlides(currentActiveSlide, nextActiveSlide);
             }
         });
 
-        $("body").on('click', '.dots span', function(event) {
+        $("body").on('click', '.dots .dot', function(event) {
             var slideIndex = $(this).index();
-            var nextActiveSlide = $($(".slider").children()[slideIndex]);
+            var nextActiveSlide = $($(options.sliderElement).children()[slideIndex]);
             $(".dots span").removeClass("active");
             $(this).addClass("active");
 
-            updateSlides(nextActiveSlide);
+            var currentActiveSlide = $(".slide.active");
+            updateSlides(currentActiveSlide, nextActiveSlide);
         });
 
-        var updateSlides = function(nextActiveSlide) {
+        var updateSlides = function(currentActiveSlide, nextActiveSlide) {
+            var currentActiveSlideIndex = $(currentActiveSlide).index();
             var nextActiveSlideIndex = $(nextActiveSlide).index();
 
-            $(".slide").removeClass("prev-1");
-            $(".slide").removeClass("next-1");
-            $(".slide").removeClass("active");
-            $(".slide").removeClass("prev-2");
-            $(".slide").removeClass("next-2");
+            $(options.slideElement).removeClass("prev-1 next-1 active prev-2 next-2");
 
             nextActiveSlide.addClass("active");
 
@@ -65,6 +82,8 @@ var Slider = (function() {
             nextActiveSlide.addClass("active");
             nextActiveSlide.next().addClass("next-1");
             nextActiveSlide.next().next().addClass("next-2");
+
+            options.onSlideChange(currentActiveSlideIndex, nextActiveSlideIndex);
         }
 
 
@@ -92,23 +111,34 @@ var Slider = (function() {
 
         var addDots = function() {
             var numberOfSlides = $(options.sliderElement + " " + options.slideElement).length;
-            for (var i = 0; i < numberOfSlides; i++) {
-                var activeClass = "";
-                if (i == options.activeSlide)
-                    activeClass = "active";
+            var dotsContainer = $("<div class='dots'></div>");
+            if (options.dots) {
+                for (var i = 0; i < numberOfSlides; i++) {
+                    var activeClass = "";
+                    if (i == options.activeSlide)
+                        activeClass = "active";
 
-                if (!options.dotCustomElement) {
-                    var dotElement = $("<span></span>").addClass(activeClass);
-                    $('.dots').append(dotElement);
-                } else {
                     var dotElement = $(options.dotCustomElement).addClass(activeClass);
-                    $('.dots').append(dotElement);
+                    dotsContainer.append(dotElement);
                 }
+                $(options.sliderElement).parent().append(dotsContainer);
             }
         }
 
+        var addArrows = function() {
+            var arrowsCotainer = $("<div class='arrows'></div>");
+            if (options.arrows) {
+                var leftArrow = $(options.arrowCustomElement).addClass('arrow-left');
+                var rightArrow = $(options.arrowCustomElement).addClass('arrow-right');
+                arrowsCotainer.append(leftArrow).append(rightArrow);
+                $(options.sliderElement).parent().append(arrowsCotainer);
+            }
+        }
+
+
         setDefaultOptions();
         addDots();
+        addArrows();
         initInitialSlide();
     }
     return {
@@ -122,7 +152,12 @@ $(function() {
     var options = {
         sliderElement: "#slider",
         slideElement: ".slide",
-        activeSlide: 5
+        activeSlide: 2,
+        arrows: true,
+        dots: true,
+        dotCustomElement: "<span class='dot'></span>",
+        arrowCustomElement: "<span class='arrow'></span>",
+        onSlideChange: function(prevSlide, nextSlide) {}
     }
     Slider.init(options);
 });
