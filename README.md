@@ -7,7 +7,7 @@
 
 
 
-#How to install:
-1- npm install <br/>
-2- gulp
+## How to install:
+1. npm install
+2. gulp
 
